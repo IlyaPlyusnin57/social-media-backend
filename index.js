@@ -17,21 +17,11 @@ const messageRoute = require("./routes/messages");
 const conversationRoute = require("./routes/conversations");
 const { verifyAccessToken } = require("./services/token-service");
 
-mongoose.connect(process.env.MONGO_URL).then(
-  () => {
-    console.log("Connected to the db");
-  },
-  (err) => {
-    console.log(err);
-  }
-);
-
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
 app.use(cookieParser());
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
-//app.use(cors({ credentials: true, origin: "http://localhost:3001" }));
 
 app.use("/api/auth", authRoute);
 app.use(verifyAccessToken);
@@ -40,6 +30,14 @@ app.use("/api/posts", postRoute);
 app.use("/api/messages", messageRoute);
 app.use("/api/conversations", conversationRoute);
 
-app.listen(8800, () => {
-  console.log("Backend server is runnng");
-});
+mongoose.connect(process.env.MONGO_URL).then(
+  () => {
+    console.log("Connected to MongoDB");
+    app.listen(8800, () => {
+      console.log("Backend server is runnng");
+    });
+  },
+  (err) => {
+    console.log(err);
+  }
+);
