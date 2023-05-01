@@ -30,6 +30,10 @@ app.use("/api/posts", postRoute);
 app.use("/api/messages", messageRoute);
 app.use("/api/conversations", conversationRoute);
 
+app.get("/", (req, res) => {
+  res.send("Welcome to my site");
+});
+
 mongoose.connect(process.env.MONGO_URL).then(
   () => {
     console.log("Connected to MongoDB");
