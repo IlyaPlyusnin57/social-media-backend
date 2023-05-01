@@ -1,0 +1,157 @@
+const Post = require("../models/Post");
+const User = require("../models/User");
+const mongoose = require("mongoose");
+
+// create a post
+
+async function createPost(req, res) {
+  const post = new Post(req.body);
+
+  try {
+    const newPost = await post.save();
+    res.status(200).json(newPost);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+
+// update a post
+
+async function updatePost(req, res) {
+  try {
+    const post = await Post.findById(req.params.id).exec();
+    if (!post) return res.status(404).json("Post was not found!");
+
+    if (post.userId !== req.body.userId)
+      return res.status(403).json("Can only update your own post");
+
+    await post.updateOne({ $set: req.body });
+    res.status(200).json("Updated the post");
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+
+async function deletePost(req, res) {
+  try {
+    const post = await Post.findById(req.params.id).exec();
+    if (!post) return res.status(404).json("Post was not found!");
+
+    if (post.userId !== req.body.userId)
+      return res.status(403).json("Can only delete your own post");
+
+    await post.deleteOne();
+    res.status(200).json("Deleted the post");
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+
+// like a post (and remove the like)
+
+async function likePost(req, res) {
+  try {
+    const post = await Post.findById(req.params.id).exec();
+    if (!post) return res.status(404).json("Post was not found!");
+
+    if (post.likes.includes(req.body.userId)) {
+      await post.updateOne({ $pull: { likes: req.body.userId } });
+      return res.status(200).json("Removed the like");
+    }
+
+    await post.updateOne({ $push: { likes: req.body.userId } });
+    res.status(200).json("Liked the post");
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+
+// get a post
+
+async function getPost(req, res) {
+  try {
+    const post = await Post.findById(req.params.id).exec();
+    if (!post) return res.status(404).json("Could not find the post");
+
+    res.status(200).json(post);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+
+// get all user's posts
+
+async function getUserPosts(req, res) {
+  try {
+    const posts = await Post.find({ userId: req.params.id }).lean();
+
+    const explain = await Post.find({ userId: req.params.id }).explain();
+
+    console.log(explain.executionStats);
+
+    res.status(200).json(posts);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+
+async function getUserPosts2(req, res) {
+  try {
+    const lastPostId = req.body.lastPostId
+      ? { _id: { $lt: new mongoose.Types.ObjectId(req.body.lastPostId) } }
+      : {};
+
+    const posts = await Post.find()
+      .and([{ userId: req.body.userId }, lastPostId])
+      .sort({ _id: -1 })
+      .limit(10)
+      .lean();
+
+    // const explain = await Post.find()
+    //   .and([
+    //     { userId: req.body.userId },
+    //     { _id: { $lt: new mongoose.Types.ObjectId(req.body.lastPostId) } },
+    //   ])
+    //   .sort({ _id: -1 })
+    //   .limit(10)
+    //   .explain();
+
+    // console.log(explain.executionStats);
+
+    res.status(200).json(posts);
+  } catch (error) {
+    console.log({ error });
+    res.status(500).json({ error });
+  }
+}
+
+// get timeline of a user
+
+async function getTimeline(req, res) {
+  try {
+    const arr = await Post.find({ userId: req.params.id }).exec();
+    const user = await User.findById(req.params.id).exec();
+    const { following } = user._doc;
+
+    const friendsPosts = await Promise.all(
+      following.map((friendId) => {
+        return Post.find({ userId: friendId }).exec();
+      })
+    );
+
+    return res.status(200).json(arr.concat(...friendsPosts));
+  } catch (error) {
+    res.status(500).json(error);
+  }
+}
+
+module.exports = {
+  createPost,
+  updatePost,
+  deletePost,
+  likePost,
+  getPost,
+  getUserPosts,
+  getTimeline,
+  getUserPosts2,
+};
