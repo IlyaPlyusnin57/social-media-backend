@@ -21,7 +21,13 @@ app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
 app.use(cookieParser());
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+//app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+app.use(
+  cors({
+    credentials: true,
+    origin: "http://https://social-media-frontend-drab.vercel.app",
+  })
+);
 
 app.use("/api/auth", authRoute);
 app.use(verifyAccessToken);
