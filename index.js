@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: "http://https://social-media-frontend-drab.vercel.app",
+    origin: "https://https://social-media-frontend-drab.vercel.app",
   })
 );
 
