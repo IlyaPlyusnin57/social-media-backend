@@ -113,6 +113,7 @@ async function login(req, res) {
       .cookie("refreshToken", tokens.refreshToken, {
         maxAge: 24 * 60 * 60 * 1000,
         httpOnly: true,
+        sameSite: "None",
       })
       .json({ username, ...restInfo, ...tokens });
   } catch (error) {
