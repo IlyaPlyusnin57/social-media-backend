@@ -7,8 +7,8 @@
     "node": "18.x"
   },
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=production nodemon index.js"
   },
   "author": "Ilya Plyusnin",
   "license": "ISC",
