@@ -106,7 +106,7 @@ async function login(req, res) {
       maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
       domain:
-        process.env.NODE_ENV === "development" ? ".localhost" : ".vercel.app",
+        process.env.NODE_ENV === "development" ? "localhost" : "vercel.app",
     });
 
     res.status(200).json({ username, ...restInfo, ...tokens });
