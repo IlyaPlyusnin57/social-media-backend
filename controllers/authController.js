@@ -114,6 +114,7 @@ async function login(req, res) {
         maxAge: 24 * 60 * 60 * 1000,
         httpOnly: true,
         sameSite: "None",
+        secure: true,
       })
       .json({ username, ...restInfo, ...tokens });
   } catch (error) {
