@@ -102,13 +102,20 @@ async function login(req, res) {
     const tokens = generateTokens({ userId: user._id });
     await saveToken(user._id, tokens.refreshToken);
 
-    res.cookie("refreshToken", tokens.refreshToken, {
-      maxAge: 24 * 60 * 60 * 1000,
-      httpOnly: true,
-      domain: "vercel.app",
-    });
+    // res.cookie("refreshToken", tokens.refreshToken, {
+    //   maxAge: 24 * 60 * 60 * 1000,
+    //   httpOnly: true,
+    //   domain: "vercel.app",
+    // });
 
-    res.status(200).json({ username, ...restInfo, ...tokens });
+    res
+      .status(200)
+      .cookie("refreshToken", tokens.refreshToken, {
+        maxAge: 24 * 60 * 60 * 1000,
+        httpOnly: true,
+        domain: "vercel.app",
+      })
+      .json({ username, ...restInfo, ...tokens });
   } catch (error) {
     console.log(error);
     res.status(500).json(error);
