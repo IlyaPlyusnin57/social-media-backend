@@ -113,7 +113,7 @@ async function login(req, res) {
       .cookie("refreshToken", tokens.refreshToken, {
         maxAge: 24 * 60 * 60 * 1000,
         httpOnly: true,
-        domain: "vercel.app",
+        domain: "social-media-frontend-drab.vercel.app",
       })
       .json({ username, ...restInfo, ...tokens });
   } catch (error) {
