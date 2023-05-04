@@ -7,6 +7,9 @@ const key = process.env.MESSAGE_SECRET;
 // create a message
 
 async function createMessage(req, res) {
+  if (req.body.message === "")
+    return res.status(403).json("Message cannot be empty!");
+
   try {
     const senderId = req.body.senderId;
     const conversationId = req.body.conversationId;
