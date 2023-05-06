@@ -10,6 +10,7 @@ const {
   searchUsers,
   getAllUsers,
   userFollowers,
+  searchAllUsers,
 } = require("../controllers/usersController");
 
 router.put("/:id", updateUser);
@@ -19,6 +20,7 @@ router.post("/:id/is-following", isFollowing);
 router.patch("/:id/follow", followUser);
 router.patch("/:id/unfollow", unfollowUser);
 router.post("/search", searchUsers);
+router.post("/searchAllUsers", searchAllUsers);
 router.get("/:id/all", getAllUsers);
 router.get("/:id/subscriptions", userFollowers);
 

@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const mongoose = require("mongoose");
 
 // update a user
 
@@ -153,24 +154,65 @@ async function unfollowUser(req, res) {
   }
 }
 
-// search users
+// search users (only the first 5 for the search bar)
 
 async function searchUsers(req, res) {
-  const { name } = req.body;
+  try {
+    const { name } = req.body;
 
-  if (name === "") {
-    return res.status(200).json([]);
+    if (name === "") {
+      return res.status(200).json([]);
+    }
+
+    const users = await User.find()
+      .or([
+        { full_name: { $regex: name, $options: "i" } },
+        { username: { $regex: name, $options: "i" } },
+      ])
+      .limit(5)
+      .exec();
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(error);
   }
+}
 
-  const users = await User.find()
-    .or([
-      { full_name: { $regex: name, $options: "i" } },
-      { username: { $regex: name, $options: "i" } },
-    ])
-    .limit(5)
-    .exec();
+// Search all users
 
-  res.status(200).json(users);
+async function searchAllUsers(req, res) {
+  try {
+    const { name } = req.body;
+
+    if (name === "") {
+      return res.status(200).json([]);
+    }
+
+    const lastUserId = req.body.lastUserId
+      ? {
+          _id: { $gt: new mongoose.Types.ObjectId(req.body.lastUserId) },
+        }
+      : {};
+
+    const users = await User.find()
+      .and([
+        {
+          $or: [
+            { full_name: { $regex: name, $options: "i" } },
+            { username: { $regex: name, $options: "i" } },
+          ],
+        },
+        { $or: [lastUserId] },
+      ])
+      .limit(5)
+      .lean();
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(error);
+  }
 }
 
 // get all users, an end point for testing purposes
@@ -214,4 +256,5 @@ module.exports = {
   searchUsers,
   getAllUsers,
   userFollowers,
+  searchAllUsers,
 };
