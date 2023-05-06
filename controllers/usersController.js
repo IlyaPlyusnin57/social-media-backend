@@ -205,7 +205,7 @@ async function searchAllUsers(req, res) {
         },
         { $or: [lastUserId] },
       ])
-      .limit(5)
+      .limit(10)
       .lean();
 
     res.status(200).json(users);
