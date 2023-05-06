@@ -76,7 +76,6 @@ async function register(req, res) {
 
 async function login(req, res) {
   try {
-    console.log({ body: req.body });
     // const user = await User.findOne({
     //   $or: [{ email: req.body.email }, { username: req.body.email }],
     // }).exec();
