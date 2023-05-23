@@ -103,27 +103,28 @@ function validateRefreshToken(token) {
 async function verifyAccessToken(req, res, next) {
   const authHeader = req.headers.authorization;
 
-  // console.log("These Cookies: ", req.cookies);
-  // console.log(authHeader);
-  // console.log("authHeader is: ", authHeader);
-  next();
+  console.log("These Cookies: ", req.cookies);
+  console.log(authHeader);
+  console.log("authHeader is: ", authHeader);
+  console.log("I am herrrrrrrrrrrrrrrrrrrrrrreeee");
+  //next();
 
-  // if (authHeader) {
-  //   const token = authHeader.split(" ")[1];
+  if (authHeader) {
+    const token = authHeader.split(" ")[1];
 
-  //   jwt.verify(token, process.env.ACCESS_SECRET, (err, decoded) => {
-  //     if (err) {
-  //       return res
-  //         .status(403)
-  //         .json({ msg: err?.message, errorFrom: "verifyAccessToken" });
-  //     }
+    jwt.verify(token, process.env.ACCESS_SECRET, (err, decoded) => {
+      if (err) {
+        return res
+          .status(403)
+          .json({ msg: err?.message, errorFrom: "verifyAccessToken" });
+      }
 
-  //     req.decoded = decoded;
-  //     next();
-  //   });
-  // } else {
-  //   return res.status(401).json("You are not authenticated!");
-  // }
+      req.decoded = decoded;
+      next();
+    });
+  } else {
+    return res.status(401).json("You are not authenticated!");
+  }
 }
 
 module.exports = {
