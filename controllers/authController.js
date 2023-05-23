@@ -142,8 +142,6 @@ async function refresh(req, res) {
   const refreshToken = req.cookies.refreshToken;
   const userId = req.body.userId;
 
-  console.log({ userId, refreshToken });
-
   try {
     const token = await Token.findOne({ userId, refreshToken }).lean();
 
