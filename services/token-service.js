@@ -107,7 +107,6 @@ async function verifyAccessToken(req, res, next) {
   console.log(authHeader);
   console.log("authHeader is: ", authHeader);
   console.log("I am herrrrrrrrrrrrrrrrrrrrrrreeee");
-  //next();
 
   if (authHeader) {
     const token = authHeader.split(" ")[1];
