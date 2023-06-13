@@ -1,6 +1,10 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
+const {
+  updateNotifications,
+} = require("../controllers/notificationsController");
+const { v4: uuidv4 } = require("uuid");
 
 // update a user
 
@@ -110,10 +114,18 @@ async function followUser(req, res) {
   if (user.followers.includes(req.body.userId))
     return res.status(403).json("Already following that user");
 
+  const followObject = {
+    id: uuidv4(),
+    follower: currentUser,
+    followedUser: user,
+  };
+
   try {
     await currentUser.updateOne({ $push: { following: req.params.id } });
     await user.updateOne({ $push: { followers: req.body.userId } });
-    res.status(200).json("Followed the user!");
+    updateNotifications(user._id, { follow: followObject });
+
+    res.status(200).json(followObject);
   } catch (err) {
     res.status(500).json(err);
   }
