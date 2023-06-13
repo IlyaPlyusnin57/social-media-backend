@@ -15,6 +15,7 @@ const userRoute = require("./routes/users");
 const postRoute = require("./routes/posts");
 const messageRoute = require("./routes/messages");
 const conversationRoute = require("./routes/conversations");
+const notificationRoute = require("./routes/notifications");
 const { verifyAccessToken } = require("./services/token-service");
 
 app.use(express.json());
@@ -35,6 +36,7 @@ app.use("/api/users", userRoute);
 app.use("/api/posts", postRoute);
 app.use("/api/messages", messageRoute);
 app.use("/api/conversations", conversationRoute);
+app.use("/api/notifications", notificationRoute);
 
 app.get("/", (req, res) => {
   res.send("Welcome to my site");
