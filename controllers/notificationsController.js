@@ -13,12 +13,12 @@ async function getNotifications(req, res) {
   }
 }
 
-//Update notificaiton (create if not created)
+async function updateNotifications(req, res) {
+  let message = req.body.message;
+  const follow = req.body.follow;
+  const various = req.body.various;
 
-async function updateNotifications(userId, newNotification) {
-  let message = newNotification?.message;
-  const follow = newNotification?.follow;
-  const various = newNotification?.various;
+  const userId = req.params.userId;
 
   try {
     let notifications = await Notifications.findOne({ userId });
@@ -29,8 +29,11 @@ async function updateNotifications(userId, newNotification) {
 
     if (message) {
       const user = await User.findById(message.senderId);
-      message["senderName"] = `${user.first_name} ${user.last_name}`;
-      notifications.messages = [...notifications.messages, message];
+
+      if (user) {
+        message["senderName"] = `${user.first_name} ${user.last_name}`;
+        notifications.messages = [...notifications.messages, message];
+      }
     }
 
     if (follow) {
@@ -45,6 +48,8 @@ async function updateNotifications(userId, newNotification) {
     }
 
     await notifications.save();
+
+    return res.status(200).json("successfully updated notifications");
   } catch (error) {
     console.log(error);
   }
@@ -53,13 +58,15 @@ async function updateNotifications(userId, newNotification) {
 async function deleteNotificationsObject(userId) {
   const notifications = await Notifications.findOne({ userId });
 
-  const isObjectEmpty =
-    notifications.messages.length === 0 &&
-    notifications.variousNotifications.length === 0 &&
-    notifications.follows.length === 0;
+  if (notifications) {
+    const isObjectEmpty =
+      notifications.messages.length === 0 &&
+      notifications.variousNotifications.length === 0 &&
+      notifications.follows.length === 0;
 
-  if (isObjectEmpty) {
-    await Notifications.deleteOne({ userId });
+    if (isObjectEmpty) {
+      await Notifications.deleteOne({ userId });
+    }
   }
 }
 
@@ -70,16 +77,20 @@ async function removeNotification(req, res) {
     const variousId = req.body?.variousId;
 
     const userId = req.params.userId;
+    console.log({ body: req.body, userId });
 
     if (messageId) {
-      await Notifications.updateOne(
+      console.log("inside messageId");
+      const update = await Notifications.updateOne(
         { userId },
         {
           $pull: {
-            messages: { _id: new mongoose.Types.ObjectId(messageId) },
+            messages: { _id: messageId }, // used to be "new mongoose.Types.ObjectId(messageId)"
           },
         }
       );
+
+      console.log({ update });
     } else if (followId) {
       await Notifications.updateOne(
         { userId },
@@ -100,4 +111,8 @@ async function removeNotification(req, res) {
   }
 }
 
-module.exports = { updateNotifications, removeNotification, getNotifications };
+module.exports = {
+  updateNotifications,
+  removeNotification,
+  getNotifications,
+};
