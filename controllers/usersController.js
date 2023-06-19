@@ -5,6 +5,7 @@ const {
   updateNotifications,
 } = require("../controllers/notificationsController");
 const { v4: uuidv4 } = require("uuid");
+const axios = require("axios");
 
 // update a user
 
@@ -123,7 +124,10 @@ async function followUser(req, res) {
   try {
     await currentUser.updateOne({ $push: { following: req.params.id } });
     await user.updateOne({ $push: { followers: req.body.userId } });
-    updateNotifications(user._id, { follow: followObject });
+
+    await axios.patch(process.env.UPDATE_NOTIFICATIONS + user._id, {
+      follow: followObject,
+    });
 
     res.status(200).json(followObject);
   } catch (err) {
