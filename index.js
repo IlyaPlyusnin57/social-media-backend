@@ -31,12 +31,12 @@ app.use(
 );
 
 app.use("/api/auth", authRoute);
+app.use("/api/notifications", notificationRoute);
 app.use(verifyAccessToken);
 app.use("/api/users", userRoute);
 app.use("/api/posts", postRoute);
 app.use("/api/messages", messageRoute);
 app.use("/api/conversations", conversationRoute);
-app.use("/api/notifications", notificationRoute);
 
 app.get("/", (req, res) => {
   res.send("Welcome to my site");
