@@ -145,7 +145,7 @@ async function refresh(req, res) {
   try {
     const token = await Token.findOne({ userId, refreshToken }).lean();
 
-    if (!token) return res.status(403).json("You're not authenticated!");
+    if (!token) return res.status(401).json("You're not authenticated!");
 
     jwt.verify(token.refreshToken, process.env.REFRESH_SECRET, (err, user) => {
       if (err) {
