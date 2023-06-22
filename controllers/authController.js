@@ -63,6 +63,8 @@ async function register(req, res) {
         .cookie("refreshToken", tokens.refreshToken, {
           maxAge: 24 * 60 * 60 * 1000,
           httpOnly: true,
+          sameSite: "None",
+          secure: true,
         })
         .json({ username, ...restInfo, ...tokens });
     },
