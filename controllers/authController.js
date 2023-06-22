@@ -133,7 +133,10 @@ async function logout(req, res) {
     //res.clearCookie("refreshToken");
     const result = await deleteToken(refreshToken);
 
-    res.status(200).clearCookie("refreshToken").json(result);
+    res
+      .status(200)
+      .clearCookie("refreshToken", { sameSite: "None", secure: true })
+      .json(result);
   } catch (error) {
     console.log(error);
     res.status(500).json(error);
