@@ -58,12 +58,13 @@ async function register(req, res) {
       const tokens = generateTokens({ username });
       await saveToken(user._id, tokens.refreshToken);
 
-      res.cookie("refreshToken", tokens.refreshToken, {
-        maxAge: 24 * 60 * 60 * 1000,
-        httpOnly: true,
-      });
-
-      res.status(200).json({ username, ...restInfo, ...tokens });
+      return res
+        .status(200)
+        .cookie("refreshToken", tokens.refreshToken, {
+          maxAge: 24 * 60 * 60 * 1000,
+          httpOnly: true,
+        })
+        .json({ username, ...restInfo, ...tokens });
     },
     (err) => {
       console.log(err);
