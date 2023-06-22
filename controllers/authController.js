@@ -128,9 +128,10 @@ async function login(req, res) {
 async function logout(req, res) {
   try {
     const { refreshToken } = req.cookies;
-    res.clearCookie("refreshToken");
+    //res.clearCookie("refreshToken");
     const result = await deleteToken(refreshToken);
-    res.status(200).json(result);
+
+    res.status(200).clearCookie("refreshToken").json(result);
   } catch (error) {
     console.log(error);
     res.status(500).json(error);
