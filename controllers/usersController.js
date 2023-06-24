@@ -201,7 +201,7 @@ async function searchAllUsers(req, res) {
   try {
     const { name } = req.body;
 
-    if (name === "") {
+    if (name === "" || !name) {
       return res.status(200).json([]);
     }
 
