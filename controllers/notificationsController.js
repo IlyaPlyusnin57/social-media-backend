@@ -75,13 +75,10 @@ async function removeNotification(req, res) {
     const messageId = req.body?.messageId;
     const followId = req.body?.followId;
     const variousId = req.body?.variousId;
-
     const userId = req.params.userId;
-    console.log({ body: req.body, userId });
 
     if (messageId) {
-      console.log("inside messageId");
-      const update = await Notifications.updateOne(
+      await Notifications.updateOne(
         { userId },
         {
           $pull: {
@@ -89,14 +86,21 @@ async function removeNotification(req, res) {
           },
         }
       );
-
-      console.log({ update });
     } else if (followId) {
       await Notifications.updateOne(
         { userId },
         {
           $pull: {
             follows: { id: followId },
+          },
+        }
+      );
+    } else if (variousId) {
+      await Notifications.updateOne(
+        { userId },
+        {
+          $pull: {
+            variousNotifications: { id: variousId },
           },
         }
       );
