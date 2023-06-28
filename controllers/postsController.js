@@ -61,12 +61,14 @@ async function likePost(req, res) {
     const likeObject = {
       id: uuidv4(),
       liker: req.body.user,
-      message: `liked your post`,
+      message: `liked your`,
       likedUser: post.userId,
+      type: "post",
+      typeId: post._id,
     };
 
     if (post.likes.includes(liker._id)) {
-      likeObject.message = "removed a like from your post";
+      likeObject.message = "removed a like from your";
 
       await post.updateOne({ $pull: { likes: liker._id } });
       return res.status(200).json(likeObject);
