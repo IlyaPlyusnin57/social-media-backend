@@ -1,6 +1,8 @@
 const Post = require("../models/Post");
 const User = require("../models/User");
 const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
+const axios = require("axios");
 
 // create a post
 
@@ -50,17 +52,32 @@ async function deletePost(req, res) {
 // like a post (and remove the like)
 
 async function likePost(req, res) {
+  const liker = req.body.user;
+
   try {
     const post = await Post.findById(req.params.id).exec();
     if (!post) return res.status(404).json("Post was not found!");
 
-    if (post.likes.includes(req.body.userId)) {
-      await post.updateOne({ $pull: { likes: req.body.userId } });
-      return res.status(200).json("Removed the like");
+    const likeObject = {
+      id: uuidv4(),
+      liker: req.body.user,
+      message: `liked your post`,
+      likedUser: post.userId,
+    };
+
+    if (post.likes.includes(liker._id)) {
+      likeObject.message = "removed a like from your post";
+
+      await post.updateOne({ $pull: { likes: liker._id } });
+      return res.status(200).json(likeObject);
     }
 
-    await post.updateOne({ $push: { likes: req.body.userId } });
-    res.status(200).json("Liked the post");
+    await post.updateOne({ $push: { likes: liker._id } });
+    await axios.patch(process.env.UPDATE_NOTIFICATIONS + post.userId, {
+      various: likeObject,
+    });
+
+    res.status(200).json(likeObject);
   } catch (error) {
     res.status(500).json(error);
   }
