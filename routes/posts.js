@@ -9,6 +9,7 @@ const {
   getUserPosts,
   getTimeline,
   getUserPosts2,
+  getPostLikers,
 } = require("../controllers/postsController");
 
 router.post("/", createPost);
@@ -19,5 +20,6 @@ router.get("/:id", getPost);
 router.get("/user/:id", getUserPosts);
 router.post("/user2", getUserPosts2);
 router.get("/:id/all", getTimeline);
+router.get("/:id/postLikers", getPostLikers);
 
 module.exports = router;

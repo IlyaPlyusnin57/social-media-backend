@@ -144,6 +144,22 @@ async function getUserPosts2(req, res) {
   }
 }
 
+// get users who liked a post
+
+async function getPostLikers(req, res) {
+  try {
+    const post = await Post.findById(req.params.id).exec();
+
+    const postLikers = await Promise.all(
+      post.likes.map((userId) => User.findById(userId).exec())
+    );
+
+    return res.status(200).json(postLikers);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 // get timeline of a user
 
 async function getTimeline(req, res) {
@@ -173,4 +189,5 @@ module.exports = {
   getUserPosts,
   getTimeline,
   getUserPosts2,
+  getPostLikers,
 };
