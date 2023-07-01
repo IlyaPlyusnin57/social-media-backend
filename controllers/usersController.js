@@ -246,7 +246,7 @@ async function getAllUsers(_, res) {
 
 // return user's followers
 
-async function userFollowers(req, res) {
+async function userSubscriptions(req, res) {
   try {
     const id = req.params.id;
     const user = await User.findById(id).exec();
@@ -262,6 +262,21 @@ async function userFollowers(req, res) {
   }
 }
 
+async function userFollowers(req, res) {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId).exec();
+
+    const followers = await Promise.all(
+      user.followers.map((userId) => User.findById(userId).exec())
+    );
+
+    return res.status(200).json(followers);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 module.exports = {
   updateUser,
   deleteUser,
@@ -271,6 +286,7 @@ module.exports = {
   unfollowUser,
   searchUsers,
   getAllUsers,
-  userFollowers,
+  userSubscriptions,
   searchAllUsers,
+  userFollowers,
 };

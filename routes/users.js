@@ -9,8 +9,9 @@ const {
   unfollowUser,
   searchUsers,
   getAllUsers,
-  userFollowers,
+  userSubscriptions,
   searchAllUsers,
+  userFollowers,
 } = require("../controllers/usersController");
 
 router.put("/:id", updateUser);
@@ -22,6 +23,7 @@ router.patch("/:id/unfollow", unfollowUser);
 router.post("/search", searchUsers);
 router.post("/searchAllUsers", searchAllUsers);
 router.get("/:id/all", getAllUsers);
-router.get("/:id/subscriptions", userFollowers);
+router.get("/:id/subscriptions", userSubscriptions);
+router.get("/:id/followers", userFollowers);
 
 module.exports = router;
