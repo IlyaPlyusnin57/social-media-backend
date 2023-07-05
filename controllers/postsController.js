@@ -180,6 +180,35 @@ async function getTimeline(req, res) {
   }
 }
 
+async function getFeedForADay(req, res) {
+  const userId = req.params.userId;
+  const currDay = req.body.currDay;
+  const prevDay = req.body.prevDay;
+
+  const currentDate = new Date();
+  const previousDate = new Date();
+
+  currentDate.setDate(currentDate.getDate() - currDay);
+  previousDate.setDate(previousDate.getDate() - prevDay);
+
+  const lastPostId = req.body.lastPostId
+    ? { _id: { $lt: new mongoose.Types.ObjectId(req.body.lastPostId) } }
+    : {};
+
+  try {
+    const posts = await Post.find()
+      .and([{ lastPostId }, { userId }])
+      .and([{ createdAt: { $lte: currentDate, $gte: previousDate } }])
+      .sort({ _id: -1 })
+      .limit(10)
+      .lean();
+
+    return res.status(200).json(posts);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 module.exports = {
   createPost,
   updatePost,
@@ -190,4 +219,5 @@ module.exports = {
   getTimeline,
   getUserPosts2,
   getPostLikers,
+  getFeedForADay,
 };
