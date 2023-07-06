@@ -197,7 +197,7 @@ async function getFeedForADay(req, res) {
 
   try {
     const posts = await Post.find()
-      .and([{ lastPostId }, { userId }])
+      .and([lastPostId, { userId }])
       .and([{ createdAt: { $lte: currentDate, $gte: previousDate } }])
       .sort({ _id: -1 })
       .limit(10)
