@@ -75,9 +75,12 @@ async function likePost(req, res) {
     }
 
     await post.updateOne({ $push: { likes: liker._id } });
-    await axios.patch(process.env.UPDATE_NOTIFICATIONS + post.userId, {
-      various: likeObject,
-    });
+
+    if (liker._id !== post.userId) {
+      await axios.patch(process.env.UPDATE_NOTIFICATIONS + post.userId, {
+        various: likeObject,
+      });
+    }
 
     res.status(200).json(likeObject);
   } catch (error) {
