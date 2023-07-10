@@ -7,13 +7,41 @@ const axios = require("axios");
 // create a post
 
 async function createPost(req, res) {
-  const post = new Post(req.body);
+  const { postObject, taggedUsers, sendUser } = req.body;
+
+  const post = new Post(postObject);
 
   try {
     const newPost = await post.save();
-    res.status(200).json(newPost);
+
+    let tagObjects = [];
+
+    if (Array.isArray(taggedUsers) && taggedUsers.length > 0) {
+      const objects = await Promise.all(
+        taggedUsers.map(async (user) => {
+          const tagObject = {
+            id: uuidv4(),
+            liker: sendUser,
+            message: `tagged you in`,
+            likedUser: user._id,
+            type: "post",
+            typeId: post._id,
+          };
+
+          await axios.patch(process.env.UPDATE_NOTIFICATIONS + user._id, {
+            various: tagObject,
+          });
+
+          return tagObject;
+        })
+      );
+
+      tagObjects = objects;
+    }
+
+    res.status(200).json({ newPost, tagObjects });
   } catch (error) {
-    res.status(500).json(error);
+    res.status(500).json({ error });
   }
 }
 
