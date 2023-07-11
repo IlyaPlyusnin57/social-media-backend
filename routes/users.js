@@ -4,6 +4,7 @@ const {
   updateUser,
   deleteUser,
   getUser,
+  getUser2,
   isFollowing,
   followUser,
   unfollowUser,
@@ -17,6 +18,7 @@ const {
 router.put("/:id", updateUser);
 router.delete("/:id", deleteUser);
 router.get("/:id", getUser);
+router.get("/byUsername/:username", getUser2);
 router.post("/:id/is-following", isFollowing);
 router.patch("/:id/follow", followUser);
 router.patch("/:id/unfollow", unfollowUser);

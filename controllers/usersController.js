@@ -75,6 +75,19 @@ async function getUser(req, res) {
   });
 }
 
+async function getUser2(req, res) {
+  try {
+    const user = await User.findOne({ username: req.params.username });
+
+    if (!user) return res.status(404).json("User not found");
+
+    return res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(error);
+  }
+}
+
 // is a user following a user
 
 async function isFollowing(req, res) {
@@ -281,6 +294,7 @@ module.exports = {
   updateUser,
   deleteUser,
   getUser,
+  getUser2,
   isFollowing,
   followUser,
   unfollowUser,
