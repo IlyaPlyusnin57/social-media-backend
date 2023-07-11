@@ -11,6 +11,7 @@ const {
   getUserPosts2,
   getPostLikers,
   getFeedForADay,
+  getTaggedPosts,
 } = require("../controllers/postsController");
 
 router.post("/", createPost);
@@ -23,5 +24,6 @@ router.post("/user2", getUserPosts2);
 router.get("/:id/all", getTimeline);
 router.get("/:id/postLikers", getPostLikers);
 router.post("/getFeedForADay/:userId", getFeedForADay);
+router.get("/tagged/:userId", getTaggedPosts);
 
 module.exports = router;

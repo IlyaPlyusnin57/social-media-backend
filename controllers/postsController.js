@@ -9,7 +9,9 @@ const axios = require("axios");
 async function createPost(req, res) {
   const { postObject, taggedUsers, sendUser } = req.body;
 
-  const post = new Post(postObject);
+  const taggedIds = taggedUsers.map((user) => user._id);
+
+  const post = new Post({ ...postObject, tags: taggedIds });
 
   try {
     const newPost = await post.save();
@@ -240,6 +242,19 @@ async function getFeedForADay(req, res) {
   }
 }
 
+async function getTaggedPosts(req, res) {
+  const userId = req.params.userId;
+
+  try {
+    const posts = await Post.find({ tags: { $in: [userId] } });
+
+    return res.status(200).json(posts);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json(error);
+  }
+}
+
 module.exports = {
   createPost,
   updatePost,
@@ -251,4 +266,5 @@ module.exports = {
   getUserPosts2,
   getPostLikers,
   getFeedForADay,
+  getTaggedPosts,
 };
