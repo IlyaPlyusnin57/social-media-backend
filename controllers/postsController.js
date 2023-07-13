@@ -245,8 +245,24 @@ async function getFeedForADay(req, res) {
 async function getTaggedPosts(req, res) {
   const userId = req.params.userId;
 
+  const lastPostId = req.body.lastPostId
+    ? { _id: { $lt: new mongoose.Types.ObjectId(req.body.lastPostId) } }
+    : {};
+
   try {
-    const posts = await Post.find({ tags: { $in: [userId] } });
+    const posts = await Post.find()
+      .and([{ tags: { $in: [userId] } }, lastPostId])
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean();
+
+    // const explain = await Post.find()
+    //   .and([{ tags: { $in: [userId] } }, lastPostId])
+    //   .sort({ createdAt: -1 })
+    //   .limit(10)
+    //   .explain();
+
+    // console.log({ explain: explain.executionStats });
 
     return res.status(200).json(posts);
   } catch (error) {
