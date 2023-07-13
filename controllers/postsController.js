@@ -101,6 +101,13 @@ async function likePost(req, res) {
       likeObject.message = "removed a like from your";
 
       await post.updateOne({ $pull: { likes: liker._id } });
+
+      if (liker._id !== post.userId) {
+        await axios.patch(process.env.UPDATE_NOTIFICATIONS + post.userId, {
+          various: likeObject,
+        });
+      }
+
       return res.status(200).json(likeObject);
     }
 
