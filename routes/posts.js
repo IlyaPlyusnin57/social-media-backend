@@ -24,6 +24,6 @@ router.post("/user2", getUserPosts2);
 router.get("/:id/all", getTimeline);
 router.get("/:id/postLikers", getPostLikers);
 router.post("/getFeedForADay/:userId", getFeedForADay);
-router.get("/tagged/:userId", getTaggedPosts);
+router.post("/tagged/:userId", getTaggedPosts);
 
 module.exports = router;
