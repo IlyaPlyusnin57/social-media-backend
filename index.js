@@ -17,6 +17,7 @@ const messageRoute = require("./routes/messages");
 const conversationRoute = require("./routes/conversations");
 const notificationRoute = require("./routes/notifications");
 const { verifyAccessToken } = require("./services/token-service");
+const commentRoute = require("./routes/comments");
 
 app.use(express.json());
 app.use(helmet());
@@ -37,6 +38,7 @@ app.use("/api/users", userRoute);
 app.use("/api/posts", postRoute);
 app.use("/api/messages", messageRoute);
 app.use("/api/conversations", conversationRoute);
+app.use("/api/comments", commentRoute);
 
 app.get("/", (req, res) => {
   res.send("Welcome to my site");
