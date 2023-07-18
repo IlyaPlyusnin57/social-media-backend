@@ -22,7 +22,6 @@ const CommentSchema = new Schema(
       required: true,
       min: 3,
       max: 20,
-      unique: true,
     },
     profilePicture: {
       type: String,
