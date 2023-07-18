@@ -64,6 +64,23 @@ async function updatePost(req, res) {
   }
 }
 
+// update a post
+
+async function updatePostCommentCount(postId) {
+  try {
+    const post = await Post.findById(postId).exec();
+    if (!post) return res.status(404).json("Post was not found!");
+
+    const comments = { comments: ++post.comments };
+
+    await post.updateOne({ $set: comments });
+
+    return "success";
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 async function deletePost(req, res) {
   try {
     const post = await Post.findById(req.params.id).exec();
@@ -273,6 +290,7 @@ async function getTaggedPosts(req, res) {
 module.exports = {
   createPost,
   updatePost,
+  updatePostCommentCount,
   deletePost,
   likePost,
   getPost,
