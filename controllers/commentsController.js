@@ -1,5 +1,6 @@
 const Comment = require("../models/Comment");
 const CommentReply = require("../models/CommentReply");
+const Post = require("../models/Post");
 const mongoose = require("mongoose");
 const { updatePostCommentCount } = require("../controllers/postsController");
 const { v4: uuidv4 } = require("uuid");
@@ -11,13 +12,19 @@ async function createComment(req, res) {
   const { type, commentBody, postUserId, commenter } = req.body;
   let comment = null;
 
+  const postId = commentBody.postId;
+
+  if ((await Post.findById(postId).lean()) == null) {
+    return res.status(404).json("Post does not exist!");
+  }
+
   const commentObject = {
     id: uuidv4(),
     liker: commenter,
     message: `commented on your`,
     likedUser: postUserId,
     type: "post",
-    typeId: commentBody.postId,
+    typeId: postId,
   };
 
   try {
@@ -29,7 +36,7 @@ async function createComment(req, res) {
 
     const newComment = await comment.save();
 
-    await updatePostCommentCount(commentBody.postId, true);
+    await updatePostCommentCount(postId, true);
 
     if (postUserId !== commentBody.userId) {
       await axios.patch(process.env.UPDATE_NOTIFICATIONS + postUserId, {
@@ -45,16 +52,19 @@ async function createComment(req, res) {
 }
 
 async function getComment(req, res) {
+  const postId = req.body.postId;
+
+  if ((await Post.findById(postId).lean()) == null) {
+    return res.status(404).json("Post does not exist!");
+  }
+
   try {
     const lastCommentId = req.body.lastCommentId
       ? { _id: { $lt: new mongoose.Types.ObjectId(req.body.lastCommentId) } }
       : {};
 
     const comments = await Comment.find()
-      .and([
-        { postId: new mongoose.Types.ObjectId(req.body.postId) },
-        lastCommentId,
-      ])
+      .and([{ postId: new mongoose.Types.ObjectId(postId) }, lastCommentId])
       .sort({ _id: -1 })
       .limit(5)
       .lean();
@@ -93,6 +103,12 @@ async function editComment(req, res) {
   let comment = null;
 
   try {
+    const { postId } = req.body;
+
+    if ((await Post.findById(postId).lean()) == null) {
+      return res.status(404).json("Post does not exist!");
+    }
+
     const { commentId, text, type } = req.body;
 
     if (type === "comment") {
@@ -114,6 +130,12 @@ async function editComment(req, res) {
 
 async function deleteComment(req, res) {
   try {
+    const { postId: id } = req.body;
+
+    if ((await Post.findById(id).lean()) == null) {
+      return res.status(404).json("Post does not exist!");
+    }
+
     const comment = await Comment.findById(req.params.id).exec();
 
     if (!comment) return res.status(404).json("Comment was not found!");
