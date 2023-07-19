@@ -29,7 +29,7 @@ async function createComment(req, res) {
 
     const newComment = await comment.save();
 
-    await updatePostCommentCount(commentBody.postId);
+    await updatePostCommentCount(commentBody.postId, true);
 
     if (postUserId !== commentBody.userId) {
       await axios.patch(process.env.UPDATE_NOTIFICATIONS + postUserId, {
