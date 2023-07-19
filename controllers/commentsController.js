@@ -89,8 +89,69 @@ async function getCommentReply(req, res) {
   }
 }
 
+async function editComment(req, res) {
+  let comment = null;
+
+  try {
+    const { commentId, text, type } = req.body;
+
+    if (type === "comment") {
+      comment = await Comment.findById(commentId).exec();
+    } else if (type === "commentReply") {
+      comment = await CommentReply.findById(commentId).exec();
+    }
+
+    const { modifiedCount } = await comment.updateOne({ text });
+
+    if (modifiedCount === 1) return res.status(200).json("success!");
+
+    return res.status(400).json("document was not modified!");
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json();
+  }
+}
+
+async function deleteComment(req, res) {
+  try {
+    const comment = await Comment.findById(req.params.id).exec();
+
+    if (!comment) return res.status(404).json("Comment was not found!");
+
+    const postId = comment.postId;
+
+    const { commenter, userId } = req.body;
+
+    const commentObject = {
+      id: uuidv4(),
+      liker: commenter,
+      message: `deleted comment on your`,
+      likedUser: userId,
+      type: "post",
+      typeId: comment.postId,
+    };
+
+    if (commenter._id !== userId) {
+      await axios.patch(process.env.UPDATE_NOTIFICATIONS + userId, {
+        various: commentObject,
+      });
+    }
+
+    await comment.deleteOne();
+
+    await updatePostCommentCount(postId, false);
+
+    return res.status(200).json(commentObject);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+}
+
 module.exports = {
   createComment,
   getComment,
   getCommentReply,
+  editComment,
+  deleteComment,
 };
