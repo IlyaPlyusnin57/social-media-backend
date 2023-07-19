@@ -1,5 +1,7 @@
 const Post = require("../models/Post");
 const User = require("../models/User");
+const Comment = require("../models/Comment");
+const CommentReply = require("../models/CommentReply");
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
@@ -95,7 +97,16 @@ async function deletePost(req, res) {
     if (post.userId !== req.body.userId)
       return res.status(403).json("Can only delete your own post");
 
+    await Comment.deleteMany({
+      postId: new mongoose.Types.ObjectId(req.params.id),
+    });
+
+    await CommentReply.deleteMany({
+      postId: new mongoose.Types.ObjectId(req.params.id),
+    });
+
     await post.deleteOne();
+
     res.status(200).json("Deleted the post");
   } catch (error) {
     res.status(500).json(error);
