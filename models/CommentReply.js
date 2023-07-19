@@ -29,6 +29,11 @@ const CommentReplySchema = new Schema(
       default: "",
       required: true,
     },
+    postId: {
+      type: Schema.Types.ObjectId,
+      ref: "Post",
+      required: true,
+    },
   },
   { timestamps: true }
 );
