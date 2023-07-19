@@ -125,7 +125,7 @@ async function deleteComment(req, res) {
     const commentObject = {
       id: uuidv4(),
       liker: commenter,
-      message: `deleted comment on your`,
+      message: `deleted a comment on your`,
       likedUser: userId,
       type: "post",
       typeId: comment.postId,
