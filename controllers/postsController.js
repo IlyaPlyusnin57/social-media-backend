@@ -216,6 +216,10 @@ async function getPostLikers(req, res) {
   try {
     const post = await Post.findById(req.params.id).exec();
 
+    if (post == null) {
+      return res.status(404).json("Post does not exist!");
+    }
+
     const postLikers = await Promise.all(
       post.likes.map((userId) => User.findById(userId).exec())
     );
