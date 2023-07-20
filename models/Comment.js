@@ -28,6 +28,11 @@ const CommentSchema = new Schema(
       default: "",
       required: true,
     },
+    likes: {
+      type: Array,
+      default: [],
+      required: true,
+    },
   },
   { timestamps: true }
 );
