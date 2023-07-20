@@ -132,6 +132,7 @@ async function followUser(req, res) {
     id: uuidv4(),
     follower: currentUser,
     followedUser: user,
+    message: "You have been followed by",
   };
 
   try {
@@ -174,10 +175,22 @@ async function unfollowUser(req, res) {
   if (!user.followers.includes(req.body.userId))
     return res.status(403).json("Not following that user");
 
+  const followObject = {
+    id: uuidv4(),
+    follower: currentUser,
+    followedUser: user,
+    message: "You have been unfollowed by",
+  };
+
   try {
     await currentUser.updateOne({ $pull: { following: req.params.id } });
     await user.updateOne({ $pull: { followers: req.body.userId } });
-    res.status(200).json("Unfollowed the user!");
+
+    await axios.patch(process.env.UPDATE_NOTIFICATIONS + user._id, {
+      follow: followObject,
+    });
+
+    res.status(200).json(followObject);
   } catch (err) {
     res.status(500).json(err);
   }
