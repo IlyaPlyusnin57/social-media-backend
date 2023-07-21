@@ -33,6 +33,11 @@ const CommentSchema = new Schema(
       default: [],
       required: true,
     },
+    dislikes: {
+      type: Array,
+      default: [],
+      required: true,
+    },
   },
   { timestamps: true }
 );

@@ -34,6 +34,16 @@ const CommentReplySchema = new Schema(
       ref: "Post",
       required: true,
     },
+    likes: {
+      type: Array,
+      default: [],
+      required: true,
+    },
+    dislikes: {
+      type: Array,
+      default: [],
+      required: true,
+    },
   },
   { timestamps: true }
 );
