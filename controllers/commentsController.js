@@ -170,10 +170,74 @@ async function deleteComment(req, res) {
   }
 }
 
+async function likeDislikeComment(req, res) {
+  try {
+    const { post, isLiking, user: liker } = req.body;
+
+    const comment = await Comment.findById(req.params.id).exec();
+
+    if (comment == null) {
+      return res.status(404).json("Comment does not exist!");
+    }
+
+    if ((await Post.findById(post._id).lean()) == null) {
+      return res.status(404).json("Post does not exist!");
+    }
+
+    const likeObject = {
+      id: uuidv4(),
+      liker: liker,
+      message: `liked your`,
+      likedUser: comment.userId.toString(),
+      type: "comment on post",
+      typeId: post._id,
+    };
+
+    if (isLiking) {
+      if (comment.dislikes.includes(liker._id)) {
+        await comment.updateOne({ $pull: { dislikes: liker._id } });
+      }
+
+      if (comment.likes.includes(liker._id)) {
+        likeObject.message = "removed a like from your";
+
+        await comment.updateOne({ $pull: { likes: liker._id } });
+      } else {
+        await comment.updateOne({ $push: { likes: liker._id } });
+      }
+    } else {
+      if (comment.likes.includes(liker._id)) {
+        await comment.updateOne({ $pull: { likes: liker._id } });
+      }
+
+      if (comment.dislikes.includes(liker._id)) {
+        likeObject.message = "removed a dislike from your";
+
+        await comment.updateOne({ $pull: { dislikes: liker._id } });
+      } else {
+        likeObject.message = "disliked your";
+        await comment.updateOne({ $push: { dislikes: liker._id } });
+      }
+    }
+
+    if (liker._id !== comment.userId.toString()) {
+      await axios.patch(process.env.UPDATE_NOTIFICATIONS + comment.userId, {
+        various: likeObject,
+      });
+    }
+
+    return res.status(200).json(likeObject);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
+  }
+}
+
 module.exports = {
   createComment,
   getComment,
   getCommentReply,
   editComment,
   deleteComment,
+  likeDislikeComment,
 };
