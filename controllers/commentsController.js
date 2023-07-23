@@ -31,7 +31,16 @@ async function createComment(req, res) {
     if (type === "comment") {
       comment = new Comment(commentBody);
     } else if (type === "commentReply") {
+      const replyingToComment = await Comment.findById(commentBody.commentId);
+
+      if (replyingToComment == null) {
+        return res.status(404).json("Comment does not exist");
+      }
+
       comment = new CommentReply(commentBody);
+
+      let repliesNum = replyingToComment.replies;
+      await replyingToComment.updateOne({ replies: ++repliesNum });
     }
 
     const newComment = await comment.save();
