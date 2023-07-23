@@ -181,9 +181,15 @@ async function deleteComment(req, res) {
 
 async function likeDislikeComment(req, res) {
   try {
-    const { post, isLiking, user: liker } = req.body;
+    const { post, isLiking, user: liker, type } = req.body;
 
-    const comment = await Comment.findById(req.params.id).exec();
+    let comment = null;
+
+    if (type === "comment") {
+      comment = await Comment.findById(req.params.id).exec();
+    } else {
+      comment = await CommentReply.findById(req.params.id).exec();
+    }
 
     if (comment == null) {
       return res.status(404).json("Comment does not exist!");
