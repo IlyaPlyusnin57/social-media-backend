@@ -38,6 +38,11 @@ const CommentSchema = new Schema(
       default: [],
       required: true,
     },
+    replies: {
+      type: Number,
+      default: 0,
+      required: true,
+    },
   },
   { timestamps: true }
 );
