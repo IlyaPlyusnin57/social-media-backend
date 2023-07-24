@@ -45,7 +45,7 @@ async function createComment(req, res) {
 
     const newComment = await comment.save();
 
-    await updatePostCommentCount(postId, true);
+    await updatePostCommentCount(postId, true, 1);
 
     if (postUserId !== commentBody.userId) {
       await axios.patch(process.env.UPDATE_NOTIFICATIONS + postUserId, {
@@ -139,13 +139,31 @@ async function editComment(req, res) {
 
 async function deleteComment(req, res) {
   try {
-    const { postId: id } = req.body;
+    const { postId: id, type, parentCommentId } = req.body;
 
     if ((await Post.findById(id).lean()) == null) {
       return res.status(404).json("Post does not exist!");
     }
 
-    const comment = await Comment.findById(req.params.id).exec();
+    let comment = null;
+    let updateCommentCount = 1;
+
+    if (type === "comment") {
+      comment = await Comment.findById(req.params.id).exec();
+
+      const { deletedCount } = await CommentReply.deleteMany({
+        commentId: new mongoose.Types.ObjectId(req.params.id),
+      });
+
+      updateCommentCount += deletedCount;
+    } else if (type === "commentReply") {
+      const parentComment = await Comment.findById(parentCommentId).exec();
+
+      let repliesNum = parentComment.replies;
+      await parentComment.updateOne({ replies: --repliesNum });
+
+      comment = await CommentReply.findById(req.params.id).exec();
+    }
 
     if (!comment) return res.status(404).json("Comment was not found!");
 
@@ -170,7 +188,7 @@ async function deleteComment(req, res) {
 
     await comment.deleteOne();
 
-    await updatePostCommentCount(postId, false);
+    await updatePostCommentCount(postId, false, updateCommentCount);
 
     return res.status(200).json(commentObject);
   } catch (error) {

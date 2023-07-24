@@ -68,18 +68,21 @@ async function updatePost(req, res) {
 
 // update a post
 
-async function updatePostCommentCount(postId, increase) {
+async function updatePostCommentCount(postId, increase, amount) {
   try {
     const post = await Post.findById(postId).exec();
     if (!post) return res.status(404).json("Post was not found!");
 
     let comments = null;
+    let num = 0;
 
     if (increase) {
-      comments = { comments: ++post.comments };
+      num = post.comments + amount;
     } else {
-      comments = { comments: --post.comments };
+      num = post.comments - amount;
     }
+
+    comments = { comments: num };
 
     await post.updateOne({ $set: comments });
 
