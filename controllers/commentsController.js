@@ -69,12 +69,12 @@ async function getComment(req, res) {
 
   try {
     const lastCommentId = req.body.lastCommentId
-      ? { _id: { $lt: new mongoose.Types.ObjectId(req.body.lastCommentId) } }
+      ? { _id: { $gt: new mongoose.Types.ObjectId(req.body.lastCommentId) } }
       : {};
 
     const comments = await Comment.find()
       .and([{ postId: new mongoose.Types.ObjectId(postId) }, lastCommentId])
-      .sort({ _id: -1 })
+      .sort({ _id: 1 })
       .limit(5)
       .lean();
 
