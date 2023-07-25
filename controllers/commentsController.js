@@ -90,14 +90,14 @@ async function getCommentReply(req, res) {
     const lastCommentReplyId = req.body.lastCommentReplyId
       ? {
           _id: {
-            $lt: new mongoose.Types.ObjectId(req.body.lastCommentReplyId),
+            $gt: new mongoose.Types.ObjectId(req.body.lastCommentReplyId),
           },
         }
       : {};
 
     const comments = await CommentReply.find()
       .and([{ commentId: req.body.commentId }, lastCommentReplyId])
-      .sort({ _id: -1 })
+      .sort({ _id: 1 })
       .limit(5)
       .lean();
 
