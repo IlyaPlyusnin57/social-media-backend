@@ -27,21 +27,20 @@ async function createComment(req, res) {
     typeId: postId,
   };
 
+  const replyObject = {
+    id: uuidv4(),
+    liker: commenter,
+    message: `responded to your`,
+    likedUser: parentUserId,
+    type: "comment on post",
+    typeId: postId,
+  };
+
   try {
     if (type === "comment") {
       comment = new Comment(commentBody);
-
-      if (postUserId !== commentBody.userId) {
-        await axios.patch(process.env.UPDATE_NOTIFICATIONS + postUserId, {
-          various: commentObject,
-        });
-      }
     } else if (type === "commentReply") {
       const replyingToComment = await Comment.findById(commentBody.commentId);
-
-      commentObject.likedUser = parentUserId;
-      commentObject.message = "responded to your";
-      commentObject.type = "comment on post";
 
       if (replyingToComment == null) {
         return res.status(404).json("Comment does not exist");
@@ -49,7 +48,7 @@ async function createComment(req, res) {
 
       if (parentUserId !== commentBody.userId) {
         await axios.patch(process.env.UPDATE_NOTIFICATIONS + parentUserId, {
-          various: commentObject,
+          various: replyObject,
         });
       }
 
@@ -63,7 +62,17 @@ async function createComment(req, res) {
 
     await updatePostCommentCount(postId, true, 1);
 
-    return res.status(200).json({ newComment, commentObject });
+    if (postUserId !== commentBody.userId) {
+      await axios.patch(process.env.UPDATE_NOTIFICATIONS + postUserId, {
+        various: commentObject,
+      });
+    }
+
+    if (type === "comment") {
+      return res.status(200).json({ newComment, commentObject });
+    } else {
+      return res.status(200).json({ newComment, commentObject, replyObject });
+    }
   } catch (error) {
     console.log(error);
     return res.status(500).json(error);
