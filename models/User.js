@@ -48,6 +48,10 @@ const UserSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
+    blocked: {
+      type: Array,
+      default: [],
+    },
     isAdmin: {
       type: Boolean,
       default: false,
