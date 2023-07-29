@@ -318,25 +318,19 @@ async function blockUser(req, res) {
     };
 
     const user = await User.findById(blocker._id).exec();
-
-    if (isBlocking) {
-      await user.updateOne({ $push: { blocked: blockedId } });
-    } else {
-      await user.updateOne({ $pull: { blocked: blockedId } });
-      blockObject.message = "unblocked you";
-    }
-
     let block = await Block.findOne({ userId: blockedId });
-
     if (!block) {
       block = await Block.create({ userId: blockedId });
     }
 
     if (isBlocking) {
       await block.updateOne({ $push: { blockingUsers: blocker._id } });
+      await user.updateOne({ $push: { blocked: blockedId } });
     } else {
       await block.updateOne({ $pull: { blockingUsers: blocker._id } });
       await deleteBlockObject(blockedId);
+      await user.updateOne({ $pull: { blocked: blockedId } });
+      blockNotification.message = "unblocked you";
     }
 
     await axios.patch(process.env.UPDATE_NOTIFICATIONS + blockedId, {
