@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Block = require("../models/Block");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const {
@@ -303,6 +304,79 @@ async function userFollowers(req, res) {
   }
 }
 
+async function blockUser(req, res) {
+  try {
+    const { isBlocking, blockedId, blocker } = req.body;
+
+    const blockNotification = {
+      id: uuidv4(),
+      liker: blocker,
+      message: `blocked you`,
+      likedUser: blockedId,
+      type: null,
+      typeId: null,
+    };
+
+    const user = await User.findById(blocker._id).exec();
+
+    if (isBlocking) {
+      await user.updateOne({ $push: { blocked: blockedId } });
+    } else {
+      await user.updateOne({ $pull: { blocked: blockedId } });
+      blockObject.message = "unblocked you";
+    }
+
+    let block = await Block.findOne({ userId: blockedId });
+
+    if (!block) {
+      block = await Block.create({ userId: blockedId });
+    }
+
+    if (isBlocking) {
+      await block.updateOne({ $push: { blockingUsers: blocker._id } });
+    } else {
+      await block.updateOne({ $pull: { blockingUsers: blocker._id } });
+      await deleteBlockObject(blockedId);
+    }
+
+    await axios.patch(process.env.UPDATE_NOTIFICATIONS + blockedId, {
+      various: blockNotification,
+    });
+
+    return res.status(200).json(blockNotification);
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json(error);
+  }
+}
+
+async function deleteBlockObject(userId) {
+  try {
+    const block = await Block.findOne({ userId });
+
+    if (block.blockingUsers.length === 0) {
+      await Block.deleteOne({ userId });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function getBlockObject(req, res) {
+  try {
+    const block = await Block.findOne({ userId: req.params.userId });
+
+    if (!block) {
+      return res.status(200).json([]);
+    }
+
+    return res.status(200).json(block.blockingUsers);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 module.exports = {
   updateUser,
   deleteUser,
@@ -316,4 +390,6 @@ module.exports = {
   userSubscriptions,
   searchAllUsers,
   userFollowers,
+  blockUser,
+  getBlockObject,
 };

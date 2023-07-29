@@ -13,6 +13,8 @@ const {
   userSubscriptions,
   searchAllUsers,
   userFollowers,
+  blockUser,
+  getBlockObject,
 } = require("../controllers/usersController");
 
 router.put("/:id", updateUser);
@@ -27,5 +29,7 @@ router.post("/searchAllUsers", searchAllUsers);
 router.get("/:id/all", getAllUsers);
 router.get("/:id/subscriptions", userSubscriptions);
 router.get("/:id/followers", userFollowers);
+router.patch("/block", blockUser);
+router.get("/blockObject/:userId", getBlockObject);
 
 module.exports = router;
