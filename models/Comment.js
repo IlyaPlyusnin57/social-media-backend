@@ -43,6 +43,11 @@ const CommentSchema = new Schema(
       default: 0,
       required: true,
     },
+    edited: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
   },
   { timestamps: true }
 );
