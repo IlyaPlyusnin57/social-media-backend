@@ -131,13 +131,20 @@ async function editComment(req, res) {
   let comment = null;
 
   try {
-    const { postId } = req.body;
+    const { commentId, text, type, postId, commenter, postUserId } = req.body;
+
+    const editObject = {
+      id: uuidv4(),
+      liker: commenter,
+      message: `edited comment on`,
+      likedUser: postUserId,
+      type: "post",
+      typeId: postId,
+    };
 
     if ((await Post.findById(postId).lean()) == null) {
       return res.status(404).json("Post does not exist!");
     }
-
-    const { commentId, text, type } = req.body;
 
     if (type === "comment") {
       comment = await Comment.findById(commentId).exec();
@@ -145,11 +152,18 @@ async function editComment(req, res) {
       comment = await CommentReply.findById(commentId).exec();
     }
 
-    const { modifiedCount } = await comment.updateOne({ text });
+    const { modifiedCount } = await comment.updateOne({ text, edited: true });
 
-    if (modifiedCount === 1) return res.status(200).json("success!");
+    if (modifiedCount === 0)
+      return res.status(400).json("document was not modified!");
 
-    return res.status(400).json("document was not modified!");
+    if (commenter._id !== postUserId) {
+      await axios.patch(process.env.UPDATE_NOTIFICATIONS + postUserId, {
+        various: editObject,
+      });
+    }
+
+    return res.status(200).json(editObject);
   } catch (error) {
     console.log(error);
     return res.status(500).json();
